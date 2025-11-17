@@ -21,28 +21,82 @@ def jugar_blackjack():
     print("=== BLACK JACK ===\n")
     print("==================\n")
 
-    baraja, mano_jugador, mano_dealer = iniciar_juego()
+    saldo = 100000
+    apuesta_base = 50000
 
-    print("Mano Dealer", end=" ")
-    mostrar_mano(mano_dealer, ocultar_primera=True)
+    while saldo > 0:
+        print(f"\nSaldo: ${saldo:,} COP")
+        print(f"Apuesta: ${apuesta_base:,} COP")
+        
+        if saldo < apuesta_base:
+            print("\nTE QUEDASTE SIN PLATA")
+            print("Ejecuta el script de nuevo para empezar")
+            break
 
-    if es_blackjack(mano_jugador):
-        print("\nBLACKJACK!")
-        return
+        input("\nPresiona Enter para iniciar la ronda...")
 
-    jugador_continua = turno_jugador(baraja, mano_jugador)
+        print("---------------------------------")
+        
+        baraja, mano_jugador, mano_dealer = iniciar_juego()
 
-    if not jugador_continua:
-        return
+        print("\nMano Dealer", end=" ")
+        mostrar_mano(mano_dealer, ocultar_primera=True)
 
-    dealer_continua = turno_dealer(baraja, mano_dealer)
+        if es_blackjack(mano_jugador):
+            print("\nBLACKJACK!")
+            saldo += apuesta_base
+            print(f"Saldo: ${saldo:,} COP")
+            
+            continuar = input("\nQuieres seguir jugando? (s/n): ").lower()
+            if continuar != 's':
+                print(f"\nSaldo final: ${saldo:,} COP")
+                break
+            continue
 
-    print("\n=== RESULT ===")
-    if not dealer_continua:
-        print("SE PASO EL DEALER, GANASTE")
-    elif es_empate(mano_jugador, mano_dealer):
-        print("eeempate")
-    elif jugador_gana(mano_jugador, mano_dealer):
-        print("TU ERE UN GANADOR")
-    else:
-        print("gano el dealer :(")
+        jugador_continua = turno_jugador(baraja, mano_jugador)
+
+        if not jugador_continua:
+            saldo -= apuesta_base
+            print(f"Saldo: ${saldo:,} COP")
+            
+            if saldo > 0:
+                continuar = input("\nQuieres seguir jugando? (s/n): ").lower()
+                if continuar != 's':
+                    print(f"\nSaldo final: ${saldo:,} COP")
+                    break
+            else:
+                print("\nTE QUEDASTE SIN PLATA")
+                print("Ejecuta el script de nuevo para empezar")
+                break
+            continue
+
+        dealer_continua = turno_dealer(baraja, mano_dealer)
+
+        print("\n=== RESULT ===")
+        if not dealer_continua:
+            print("SE PASO EL DEALER, GANASTE")
+            saldo += apuesta_base
+        elif es_empate(mano_jugador, mano_dealer):
+            print("eeempate")
+            # En empate no se gana ni se pierde
+        elif jugador_gana(mano_jugador, mano_dealer):
+            print("TU ERE UN GANADOR")
+            saldo += apuesta_base
+        else:
+            print("gano el dealer :(")
+            saldo -= apuesta_base
+
+        print(f"Saldo: ${saldo:,} COP")
+
+        if saldo > 0:
+            continuar = input("\nQuieres seguir jugando? (s/n): ").lower()
+            if continuar != 's':
+                print(f"\nSaldo final: ${saldo:,} COP")
+                break
+        else:
+            print("\nTE QUEDASTE SIN PLATA")
+            print("Ejecuta el script de nuevo para empezar")
+
+
+if __name__ == "__main__":
+    jugar_blackjack()
